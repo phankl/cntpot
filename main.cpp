@@ -13,7 +13,7 @@ int main(int argc, char* argv[]){
 
 	int n = 3;
 
-	std::vector<std::vector<double>> a{{1, 1, 1},{1, 1, 1}, {1, 1, 1}};
+	std::vector<std::vector<double>> a{{2, 0, 0},{0, 3, 4}, {0, 4, 9}};
 	std::vector<std::vector<double>> q(n, std::vector<double>(n, 0));
 	std::vector<std::vector<double>> r(n, std::vector<double>(n, 0));
 
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]){
 	io::printMatrix(eigenvectors);
 
 	std::cout << std::endl;
-	Integrator integrator(n);
+	Integrator integrator(3);
 
 	MPI_Finalize();
 
