@@ -3,10 +3,11 @@
 
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <string>
 
 namespace io{
-	void printVector(const std::vector<double>&);
-	void printMatrix(const std::vector<std::vector<double>>&);
+	void printDataFile(const std::vector<std::vector<double>>&, std::string);
 }
 
 #endif

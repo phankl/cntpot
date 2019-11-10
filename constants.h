@@ -25,16 +25,20 @@ extern const double C_OMEGA;
 extern const double C_THETA;
 
 //Numerical spacing parameters
+extern const int MINIMUM_PRECISION_BITS;
+
 extern const double DELTA0;
 extern const double DELTA1;
 extern const double DELTA2;
 extern const double DELTA3;
+extern const double XI_LOWER;
 
 //Potential file point numbers
 extern const int GAMMA_POINTS;
 extern const int UINF_POINTS;
 extern const int PHI_POINTS;
 extern const int USEMI_POINTS;
+extern const int MINIMUM_PRECISION_BITS;
 
 //Potential file names
 extern const std::string GAMMA_FILE_NAME;

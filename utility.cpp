@@ -15,17 +15,17 @@ int sgn(double x){
 	else return 0;
 }
 
-double gamma(double h, double alpha, const boost::math::cubic_b_spline<double>& gammaOrthSpline){
+double gammaFunction(double h, double alpha, const boost::math::cubic_b_spline<double>& gammaOrthSpline){
 	double sinAlpha = sin(alpha);
 	return 1.0 + sinAlpha*sinAlpha*(gammaOrthSpline(h) - 1.0);	
 }
 
-double omega(double alpha){
+double omegaFunction(double alpha){
 	double sinAlpha = sin(alpha);
 	return 1.0 / (1.0 - C_OMEGA*sinAlpha*sinAlpha);
 }
 
-double theta(double alpha){
+double thetaFunction(double alpha){
 	double sinAlpha = sin(alpha);
 	return 1.0 - C_THETA*sinAlpha*sinAlpha;
 }
@@ -58,3 +58,4 @@ double zetaMin(double h){
 		return cutoff * sqrt(limit*limit - h*h);
 	}
 }
+

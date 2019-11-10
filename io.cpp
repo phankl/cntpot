@@ -2,34 +2,24 @@
 
 namespace io{
 	/****************************************************
-	Print vector to standard output
+	Write data to file
 	
-	Input: vector a
+	Input: 	2D data vector fileData
+		file name string fileName
 	****************************************************/
 
-	void printVector(const std::vector<double>& a){
-		int n = a.size();
-		for(int i = 0; i < n; i++){
-			std::cout << a[i] << " ";
-		}
-		std::cout << std::endl;
-	};
-
-
-	/****************************************************
-	Print matrix to standard output
-	
-	Input: matrix a
-	****************************************************/
-
-	void printMatrix(const std::vector<std::vector<double>>& a){
-		int n = a.size();
-		for(int i = 0; i < n; i++){
-			int m = a[i].size();
-			for(int j = 0; j < m; j++){
-				std::cout << a[i][j] << " ";
+	void printDataFile(const std::vector<std::vector<double>>& fileData, std::string fileName){
+		std::ofstream outFile(fileName);
+		
+		int m = fileData.size();
+		for(int i = 0; i < m; i++){
+			int n = fileData[i].size();
+			for(int j = 0; j < n; j++){
+				outFile << fileData[i][j] << " ";
 			}
-			std::cout << std::endl;
+			outFile << std::endl;
 		}
+
+		outFile.close();
 	};
 }

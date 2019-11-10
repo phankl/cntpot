@@ -12,9 +12,9 @@ int heaviside(double);
 int sgn(double);
 
 //Specific functions for potential
-double gamma(double, double, const boost::math::cubic_b_spline<double>&);
-double omega(double);
-double theta(double);
+double gammaFunction(double, double, const boost::math::cubic_b_spline<double>&);
+double omegaFunction(double);
+double thetaFunction(double);
 
 double ljPair(double);
 double surfaceElementDistance(double, double, double, double, double, double);

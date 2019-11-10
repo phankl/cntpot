@@ -1,45 +1,41 @@
 #include <mpi.h>
 #include <vector>
 #include <iostream>
+#include <fstream>
+#include <cmath>
 
-#include "integrator.h"
-#include "linalg.h"
-#include "io.h"
+#include <boost/math/interpolators/cubic_b_spline.hpp>
+
+#include "potential.h"
+#include "constants.h"
 
 int main(int argc, char* argv[]){
 	MPI_Init(&argc, &argv);
 	int rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
-	int n = 3;
-
-	std::vector<std::vector<double>> a{{2, 0, 0},{0, 3, 4}, {0, 4, 9}};
-	std::vector<std::vector<double>> q(n, std::vector<double>(n, 0));
-	std::vector<std::vector<double>> r(n, std::vector<double>(n, 0));
-
-	std::vector<double> eigenvalues(n, 0);
-	std::vector<std::vector<double>> eigenvectors(n, std::vector<double>(n, 0));
-
-	linalg::qrFactorisation(a,q,r);
+	boost::math::cubic_b_spline<double> uInfParaSpline = uInfGeneration();
+	std::cout << "uInfPara computed!" << std::endl;
+	boost::math::cubic_b_spline<double> gammaOrthSpline = gammaOrthGeneration(uInfParaSpline);
+	std::cout << "gammaOrth computed!" << std::endl;
+	BicubicSpline phiSpline = phiGeneration(uInfParaSpline);
+	std::cout << "phi computed!" << std::endl;
 	
-	std::cout << "QR Factorisation" << std::endl;
-	io::printMatrix(a);
-	io::printMatrix(q);
-	io::printMatrix(r);
+	std::ofstream outFile("phiSpline.dat");
 
-	std::cout << "Check correctness of QR Factorisation" << std::endl;
-	linalg::matrixProduct(q,r,a);
-	io::printMatrix(a);
+	int points = 1001;
+	double h = 2*R_CNT + 3.15;
+	double xi1 = -10.0;
+	double xi2 = 10.0;
+	double alphaSpacing = PI / (points - 1);
+	for(int i = 0; i < points; i++){
+		double alpha = i * alphaSpacing;
+		double uInf = uApproximateInf(h, alpha, xi1, xi2, gammaOrthSpline, phiSpline);
 
-	linalg::qrEigenvalue(a,eigenvalues,eigenvectors);
-	std::cout << "Eigenvalues" << std::endl;
-	io::printVector(eigenvalues);
-	
-	std::cout << "Eigenvectors" << std::endl;
-	io::printMatrix(eigenvectors);
+		outFile << alpha * 180.0 / PI << " " << uInf << std::endl;
+	}
 
-	std::cout << std::endl;
-	Integrator integrator(3);
+	outFile.close();
 
 	MPI_Finalize();
 
