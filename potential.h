@@ -6,19 +6,19 @@
 #include <fstream>
 #include <utility>
 
-#include <boost/math/interpolators/cubic_b_spline.hpp>
 #include <boost/math/quadrature/gauss.hpp>
 #include <boost/math/tools/minima.hpp>
 
 #include "constants.h"
 #include "utility.h"
 #include "io.h"
+#include "cubicSpline.h"
 #include "bicubicSpline.h"
 
 //File generation functions
-boost::math::cubic_b_spline<double> uInfGeneration();
-boost::math::cubic_b_spline<double> gammaOrthGeneration(const boost::math::cubic_b_spline<double>&);
-BicubicSpline phiGeneration(const boost::math::cubic_b_spline<double>&);
+CubicSpline uInfGeneration();
+CubicSpline gammaOrthGeneration(const CubicSpline&);
+BicubicSpline phiGeneration(const CubicSpline&);
 BicubicSpline uSemiGeneration();
 
 //Exact potential line density functions
@@ -30,7 +30,7 @@ double uExactInf(double, double, double, double);
 double uExactSemi(double, double, double, double, double);
 
 //Approximate potential functions
-double uApproximateInf(double, double, double, double, const boost::math::cubic_b_spline<double>&, BicubicSpline);
-double uApproximateSemi();
+double uApproximateInf(double, double, double, double, const CubicSpline&, const BicubicSpline&);
+double uApproximateSemi(double, double, double, double, double, const CubicSpline&, const BicubicSpline&);
 
 #endif

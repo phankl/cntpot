@@ -24,8 +24,9 @@ extern const double R_C0;
 extern const double C_OMEGA;
 extern const double C_THETA;
 
-//Numerical spacing parameters
+//Numerical parameters
 extern const int MINIMUM_PRECISION_BITS;
+extern const int TRAPEZOIDAL_POINTS;
 
 extern const double DELTA0;
 extern const double DELTA1;

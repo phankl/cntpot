@@ -5,17 +5,20 @@
 
 #include <boost/math/interpolators/cubic_b_spline.hpp>
 
+#include "cubicSpline.h"
+
 class BicubicSpline{
 	private:
-		const std::vector<boost::math::cubic_b_spline<double>> xSplines;
-		const double xSpacing;
-		const double xStart;
-		const int points;
+		std::vector<CubicSpline> xSplines;
+		double xSpacing;
+		double xStart;
+		int points;
 
 	public:
-		BicubicSpline(const std::vector<boost::math::cubic_b_spline<double>>&, double, double);
+		BicubicSpline();
+		BicubicSpline(const std::vector<CubicSpline>&, double, double);
 
-		double operator ()(double, double);
+		double operator ()(double, double) const;
 };
 
 #endif

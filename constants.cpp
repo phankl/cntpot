@@ -20,6 +20,7 @@ const double C_THETA = 0.35 + 0.0226*(R_CNT - 6.785);
 
 //Numerical parameters
 const int MINIMUM_PRECISION_BITS = 26;
+const int TRAPEZOIDAL_POINTS = 100;
 
 const double DELTA0 = 0.3;
 const double DELTA1 = 0.1;
@@ -31,7 +32,7 @@ const double XI_LOWER = -25.0;
 const int GAMMA_POINTS = 26;
 const int UINF_POINTS = 1001;
 const int PHI_POINTS = 1001;
-const int USEMI_POINTS = 1001;
+const int USEMI_POINTS = 101;
 
 //Potential file names
 const std::string GAMMA_FILE_NAME = "gamma";

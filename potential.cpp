@@ -1,6 +1,6 @@
 #include "potential.h"
 
-boost::math::cubic_b_spline<double> uInfGeneration(){
+CubicSpline uInfGeneration(){
 	double hStart = 2*R_CNT + DELTA0;
 	double hEnd = 2*R_CNT + R_C;
 	double hSpacing = (hEnd - hStart) / (UINF_POINTS - 1);
@@ -20,11 +20,11 @@ boost::math::cubic_b_spline<double> uInfGeneration(){
 	std::string uInfFileName = UINF_FILE_NAME + std::to_string(N) + "x" + std::to_string(M) + FILE_SUFFIX;
 	io::printDataFile(fileData, uInfFileName);
 
-	boost::math::cubic_b_spline<double> spline(uInfData.begin(), uInfData.end(), hStart, hSpacing);
+	CubicSpline spline(uInfData, hStart, hSpacing);
 	return spline;
 }
 
-boost::math::cubic_b_spline<double> gammaOrthGeneration(const boost::math::cubic_b_spline<double>& uInfParaSpline){
+CubicSpline gammaOrthGeneration(const CubicSpline& uInfParaSpline){
 	double hStart = 2*R_CNT + DELTA0;
 	double hEnd = 2*R_CNT + R_C - DELTA0;
 	double hSpacing = (hEnd - hStart) / (GAMMA_POINTS - 1);
@@ -59,18 +59,18 @@ boost::math::cubic_b_spline<double> gammaOrthGeneration(const boost::math::cubic
 	std::string gammaFileName = GAMMA_FILE_NAME + std::to_string(N) + "x" + std::to_string(M) + FILE_SUFFIX;
 	io::printDataFile(fileData, gammaFileName);
 
-	boost::math::cubic_b_spline<double> spline(gammaOrthData.begin(), gammaOrthData.end(), hStart, hSpacing);
+	CubicSpline spline(gammaOrthData, hStart, hSpacing);
 	return spline;
 }
 
-BicubicSpline phiGeneration(const boost::math::cubic_b_spline<double>& uInfParaSpline){
+BicubicSpline phiGeneration(const CubicSpline& uInfParaSpline){
 	double hStart = 0.0;
 	double hEnd = 2*R_CNT + R_C;
 	double hSpacing = (hEnd - hStart) / (PHI_POINTS - 1);
 	double psiSpacing = 1.0 / (PHI_POINTS - 1);
 
 	std::vector<std::vector<double>> fileData(PHI_POINTS*PHI_POINTS, std::vector<double>(3, 0));
-	std::vector<boost::math::cubic_b_spline<double>> hSplines(PHI_POINTS, boost::math::cubic_b_spline<double>());
+	std::vector<CubicSpline> hSplines(PHI_POINTS, CubicSpline());
 
 	#pragma omp parallel for
 	for(int i = 0; i < PHI_POINTS; i++){
@@ -102,14 +102,14 @@ BicubicSpline phiGeneration(const boost::math::cubic_b_spline<double>& uInfParaS
 			fileData[i*PHI_POINTS + j][2] = phi;
 		}
 
-		hSplines[i] = boost::math::cubic_b_spline<double>(constantHData.begin(), constantHData.end(), 0.0, psiSpacing);
+		hSplines[i] = CubicSpline(constantHData, 0.0, psiSpacing);
 	}
 
 	std::string phiFileName = PHI_FILE_NAME + std::to_string(N) + "x" + std::to_string(M) + FILE_SUFFIX;
 	io::printDataFile(fileData, phiFileName);
 
-	BicubicSpline phiSpline(hSplines, hStart, hSpacing);
-	return phiSpline;
+	BicubicSpline spline(hSplines, hStart, hSpacing);
+	return spline;
 }
 
 BicubicSpline uSemiGeneration(){
@@ -125,7 +125,8 @@ BicubicSpline uSemiGeneration(){
 	int xiSwitch = ceil((R_C - DELTA3) / xiSpacing);
 
 	std::vector<std::vector<double>> fileData(USEMI_POINTS*USEMI_POINTS, std::vector<double>(USEMI_POINTS, 0));
-	std::vector<boost::math::cubic_b_spline<double>> hSplines(USEMI_POINTS, boost::math::cubic_b_spline<double>);
+	std::vector<std::vector<double>> uSemiData(USEMI_POINTS, std::vector<double>(USEMI_POINTS, 0));
+	std::vector<CubicSpline> hSplines(USEMI_POINTS, CubicSpline());
 
 	#pragma omp parallel for
 	for(int i = 0; i < USEMI_POINTS; i++){
@@ -133,10 +134,38 @@ BicubicSpline uSemiGeneration(){
 		for(int j = 0; j < USEMI_POINTS; j++){
 			double xi = xiStart + j*xiSpacing;
 			double uSemi;
-			if(i < hSwitch && j < xiSwitch) uSemi = uExactSemiDensity();
+			if(i < hSwitch && j >= xiSwitch) uSemi = 0;
+			else uSemi = uSemi = uExactSemiDensity(h, 0, xi, 0);
+
+			uSemiData[i][j] = uSemi;
+			fileData[i*USEMI_POINTS + j][0] = h;
+			fileData[i*USEMI_POINTS + j][1] = xi;
+			fileData[i*USEMI_POINTS + j][2] = uSemi;
 		}
 	}
 
+	//Smoothly extrapolate data in undefined domain
+	#pragma omp parallel for
+	for(int i = 0; i < hSwitch; i++){
+		double uSemiXiSwitch = uSemiData[i][xiSwitch-1];
+		for(int j = xiSwitch; j < USEMI_POINTS; j++){
+			double uSemiHSwitch = uSemiData[hSwitch][j];
+			double uSemi = ((hSwitch - i)*uSemiXiSwitch + (j - xiSwitch + 1)*uSemiHSwitch) / (hSwitch - i + j - xiSwitch + 1);
+			uSemiData[i][j] = uSemi;
+			fileData[i*USEMI_POINTS + j][2] = uSemi;
+		}
+	}
+
+	std::string uSemiFileName = USEMI_FILE_NAME + std::to_string(N) + "x" + std::to_string(M) + FILE_SUFFIX;
+	io::printDataFile(fileData, uSemiFileName);
+
+	//Create 1D splines at constant h
+	#pragma omp parallel for
+	for(int i = 0; i < USEMI_POINTS; i++){
+		hSplines[i] = CubicSpline(uSemiData[i], xiStart, xiSpacing);
+	}
+	BicubicSpline spline(hSplines, hStart, hSpacing);
+	return spline;
 }
 
 double uExactInfDensity(double h, double alpha, double xi){
@@ -174,7 +203,7 @@ double uExactInfDensity(double h, double alpha, double xi){
 double uExactSemiDensity(double h, double alpha, double xi, double etaEnd){
 	//3D integral with nested lambda functions
 	auto phi1Integrand = 
-		[h, alpha, xi]
+		[h, alpha, xi, etaEnd]
 		(double phi1)->double{
 		auto etaIntegrand = 
 			[h, alpha, xi, phi1]
@@ -190,6 +219,7 @@ double uExactSemiDensity(double h, double alpha, double xi, double etaEnd){
 		double sinAlpha = sin(alpha);
 		double axisDistance = sqrt(h*h + xi*xi*sinAlpha*sinAlpha);
 		double deltaH = axisDistance - 2*R_CNT;
+		if(deltaH < 0) deltaH = 0;
 		if(fabs(deltaH) >= R_C) return 0;
 		
 		//Compute integral range
@@ -198,7 +228,11 @@ double uExactSemiDensity(double h, double alpha, double xi, double etaEnd){
 		//Conversative choice for general case
 		else etaMax = 2*R_CNT + R_C;
 
-		return LENGTH_INTEGRATOR.integrate(etaIntegrand, xi-etaMax, xi+etaMax);
+		if(etaEnd > xi - etaMax){ 
+			if(etaEnd >= xi+etaMax) return 0;
+			else return LENGTH_INTEGRATOR.integrate(etaIntegrand, etaEnd, xi+etaMax);
+		}
+		else return LENGTH_INTEGRATOR.integrate(etaIntegrand, xi-etaMax, xi+etaMax);
 	};
 	return R_CNT * R_CNT * N_SIGMA * N_SIGMA * ANGLE_INTEGRATOR.integrate(phi1Integrand, 0, 2.0*PI);
 }
@@ -212,7 +246,17 @@ double uExactInf(double h, double alpha, double xi1, double xi2){
 		return LENGTH_INTEGRATOR.integrate(xiIntegrand, xi1, xi2);
 }
 
-double uApproximateInf(double h, double alpha, double xi1, double xi2, const boost::math::cubic_b_spline<double>& gammaOrthSpline, BicubicSpline phiSpline){
+double uExactSemi(double h, double alpha, double xi1, double xi2, double etaEnd){
+	auto xiIntegrand =
+		[h, alpha, etaEnd]
+		(double xi)->double{
+			return uExactSemiDensity(h, alpha, xi, etaEnd);
+		};
+		return LENGTH_INTEGRATOR.integrate(xiIntegrand, xi1, xi2);
+}
+
+
+double uApproximateInf(double h, double alpha, double xi1, double xi2, const CubicSpline& gammaOrthSpline, const BicubicSpline& phiSpline){
 	double sinAlpha = sin(alpha);
 	double gamma = gammaFunction(h, alpha, gammaOrthSpline);
 	double omega = omegaFunction(alpha);
@@ -233,4 +277,34 @@ double uApproximateInf(double h, double alpha, double xi1, double xi2, const boo
 	else phi2 = phiSpline(h, psi2);
 
 	return gamma / a * (phi2 - phi1);
+}
+
+double uApproximateSemi(double h, double alpha, double xi1, double xi2, double etaEnd, const CubicSpline& gammaOrthSpline, const BicubicSpline& uSemiParaSpline){
+	double sinAlpha = sin(alpha);
+	double cosAlpha = cos(alpha);
+	double gamma = gammaFunction(h, alpha, gammaOrthSpline);
+	double omega = omegaFunction(alpha);
+	double theta = thetaFunction(alpha);
+	double a = omega * sinAlpha;
+	double b = theta * etaEnd;
+	double hSquared = h * h;
+
+	double deltaXi = (xi2 - xi2) / (TRAPEZOIDAL_POINTS - 1);
+
+	double uSemi = 0;
+
+	#pragma omp parallel for
+	for(int i = 0; i < TRAPEZOIDAL_POINTS; i++){
+		double c = 1.0;
+		if(i == 0 || i == TRAPEZOIDAL_POINTS - 1) c = 0.5;
+		double xiBar = xi1 + i*deltaXi;
+		double zetaBar = xiBar * a;
+		double hBar = sqrt(hSquared + zetaBar*zetaBar);
+		double etaBar = xiBar*cosAlpha - b;
+
+		uSemi += c * uSemiParaSpline(hBar, etaBar);
+	}
+
+	uSemi *= deltaXi * gamma;
+	return uSemi;
 }

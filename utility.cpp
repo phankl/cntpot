@@ -15,7 +15,7 @@ int sgn(double x){
 	else return 0;
 }
 
-double gammaFunction(double h, double alpha, const boost::math::cubic_b_spline<double>& gammaOrthSpline){
+double gammaFunction(double h, double alpha, const CubicSpline& gammaOrthSpline){
 	double sinAlpha = sin(alpha);
 	return 1.0 + sinAlpha*sinAlpha*(gammaOrthSpline(h) - 1.0);	
 }

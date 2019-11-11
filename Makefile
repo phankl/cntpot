@@ -7,7 +7,7 @@ INCLUDES = -I$(BOOSTDIR)
 LFLAGS = -L$(BOOSTLIB)
 LIBS =
 
-CXX = mpicxx
+CXX = g++
 CXXFLAGS = -O3 -g -fopenmp -std=c++11 $(INCLUDES)
 
 MAIN = main
