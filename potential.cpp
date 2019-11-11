@@ -112,7 +112,66 @@ BicubicSpline phiGeneration(const boost::math::cubic_b_spline<double>& uInfParaS
 	return phiSpline;
 }
 
+BicubicSpline uSemiGeneration(){
+	double hStart = 0;
+	double hEnd = 2*R_CNT + R_C;
+	double hSpacing = (hEnd - hStart) / (USEMI_POINTS - 1);
+	double xiStart = -R_C;
+	double xiEnd = R_C;
+	double xiSpacing = (xiEnd - xiStart) / (USEMI_POINTS - 1);
+
+	//Switch indices for smooth extrapolation of data
+	int hSwitch = ceil((2*R_CNT + DELTA3) / hSpacing);
+	int xiSwitch = ceil((R_C - DELTA3) / xiSpacing);
+
+	std::vector<std::vector<double>> fileData(USEMI_POINTS*USEMI_POINTS, std::vector<double>(USEMI_POINTS, 0));
+	std::vector<boost::math::cubic_b_spline<double>> hSplines(USEMI_POINTS, boost::math::cubic_b_spline<double>);
+
+	#pragma omp parallel for
+	for(int i = 0; i < USEMI_POINTS; i++){
+		double h = hStart + i*hSpacing;
+		for(int j = 0; j < USEMI_POINTS; j++){
+			double xi = xiStart + j*xiSpacing;
+			double uSemi;
+			if(i < hSwitch && j < xiSwitch) uSemi = uExactSemiDensity();
+		}
+	}
+
+}
+
 double uExactInfDensity(double h, double alpha, double xi){
+	//3D integral with nested lambda functions
+	auto phi1Integrand = 
+		[h, alpha, xi]
+		(double phi1)->double{
+		auto etaIntegrand = 
+			[h, alpha, xi, phi1]
+			(double eta)->double{
+			auto phi2Integrand =
+				[h, alpha, xi, eta, phi1]
+				(double phi2)->double{
+				double distance = surfaceElementDistance(h, alpha, xi, eta, phi1, phi2);
+				return ljPair(distance);
+			};
+			return ANGLE_INTEGRATOR.integrate(phi2Integrand, 0, 2.0*PI);
+		};
+		double sinAlpha = sin(alpha);
+		double axisDistance = sqrt(h*h + xi*xi*sinAlpha*sinAlpha);
+		double deltaH = axisDistance - 2*R_CNT;
+		if(fabs(deltaH) >= R_C) return 0;
+		
+		//Compute integral range
+		double etaMax; 
+		if(alpha == 0) etaMax = sqrt(R_C*R_C - deltaH*deltaH);
+		//Conversative choice for general case
+		else etaMax = 2*R_CNT + R_C;
+
+		return LENGTH_INTEGRATOR.integrate(etaIntegrand, xi-etaMax, xi+etaMax);
+	};
+	return R_CNT * R_CNT * N_SIGMA * N_SIGMA * ANGLE_INTEGRATOR.integrate(phi1Integrand, 0, 2.0*PI);
+}
+
+double uExactSemiDensity(double h, double alpha, double xi, double etaEnd){
 	//3D integral with nested lambda functions
 	auto phi1Integrand = 
 		[h, alpha, xi]

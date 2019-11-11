@@ -19,15 +19,15 @@
 boost::math::cubic_b_spline<double> uInfGeneration();
 boost::math::cubic_b_spline<double> gammaOrthGeneration(const boost::math::cubic_b_spline<double>&);
 BicubicSpline phiGeneration(const boost::math::cubic_b_spline<double>&);
-void uSemiGeneration();
+BicubicSpline uSemiGeneration();
 
 //Exact potential line density functions
 double uExactInfDensity(double, double, double);
-double uExactSemiDensity(double, double, double);
+double uExactSemiDensity(double, double, double, double);
 
 //Exact potential functions
 double uExactInf(double, double, double, double);
-double uExactSemi();
+double uExactSemi(double, double, double, double, double);
 
 //Approximate potential functions
 double uApproximateInf(double, double, double, double, const boost::math::cubic_b_spline<double>&, BicubicSpline);
