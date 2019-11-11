@@ -8,7 +8,7 @@ LFLAGS = -L$(BOOSTLIB)
 LIBS =
 
 CXX = mpicxx
-CXXFLAGS = -O3 -g -std=c++11 $(INCLUDES)
+CXXFLAGS = -O3 -g -fopenmp -std=c++11 $(INCLUDES)
 
 MAIN = main
 
