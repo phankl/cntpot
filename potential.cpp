@@ -124,7 +124,7 @@ BicubicSpline uSemiGeneration(){
 	int hSwitch = ceil((2*R_CNT + DELTA3) / hSpacing);
 	int xiSwitch = ceil((R_C - DELTA3) / xiSpacing);
 
-	std::vector<std::vector<double>> fileData(USEMI_POINTS*USEMI_POINTS, std::vector<double>(USEMI_POINTS, 0));
+	std::vector<std::vector<double>> fileData(USEMI_POINTS*USEMI_POINTS, std::vector<double>(3, 0));
 	std::vector<std::vector<double>> uSemiData(USEMI_POINTS, std::vector<double>(USEMI_POINTS, 0));
 	std::vector<CubicSpline> hSplines(USEMI_POINTS, CubicSpline());
 
