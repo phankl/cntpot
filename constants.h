@@ -27,6 +27,7 @@ extern const double C_THETA;
 //Numerical parameters
 extern const int MINIMUM_PRECISION_BITS;
 extern const int TRAPEZOIDAL_POINTS;
+extern const int OUTPUT_PRECISION;
 
 extern const double DELTA0;
 extern const double DELTA1;

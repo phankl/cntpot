@@ -15,7 +15,7 @@ namespace io{
 		for(int i = 0; i < m; i++){
 			int n = fileData[i].size();
 			for(int j = 0; j < n; j++){
-				outFile << fileData[i][j] << " ";
+				outFile << std::setprecision(OUTPUT_PRECISION) << fileData[i][j] << " ";
 			}
 			outFile << std::endl;
 		}

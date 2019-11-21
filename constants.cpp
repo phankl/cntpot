@@ -21,6 +21,7 @@ const double C_THETA = 0.35 + 0.0226*(R_CNT - 6.785);
 //Numerical parameters
 const int MINIMUM_PRECISION_BITS = 26;
 const int TRAPEZOIDAL_POINTS = 100;
+const int OUTPUT_PRECISION = 15;
 
 const double DELTA0 = 0.3;
 const double DELTA1 = 0.1;
