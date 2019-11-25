@@ -24,8 +24,8 @@ const int TRAPEZOIDAL_POINTS = 100;
 const int OUTPUT_PRECISION = 15;
 
 const double DELTA0 = 0.3;
-const double DELTA1 = 0.1;
-const double DELTA2 = 0.2;
+const double DELTA1 = 1.0;
+const double DELTA2 = 2.0;
 const double DELTA3 = 0.3;
 const double XI_LOWER = -25.0;
 
@@ -33,7 +33,7 @@ const double XI_LOWER = -25.0;
 const int GAMMA_POINTS = 26;
 const int UINF_POINTS = 1001;
 const int PHI_POINTS = 1001;
-const int USEMI_POINTS = 101;
+const int USEMI_POINTS = 1001;
 
 //Potential file names
 const std::string GAMMA_FILE_NAME = "gamma";
