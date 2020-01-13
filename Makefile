@@ -10,7 +10,7 @@ LIBS =
 CXX = g++
 CXXFLAGS = -O3 -g -fopenmp -std=c++11 $(INCLUDES)
 
-MAIN = main
+MAIN = cntpot
 
 SRC = $(wildcard *.cpp)
 OBJ = $(SRC:.cpp=.o)
