@@ -17,8 +17,7 @@ CubicSpline uInfGeneration(){
 		fileData[i][1] = uDensity;
 	}
 
-	std::string uInfFileName = UINF_FILE_NAME + std::to_string(N) + "x" + std::to_string(M) + FILE_SUFFIX;
-	io::printDataFile(fileData, uInfFileName);
+	io::printData(fileData);
 
 	CubicSpline spline(uInfData, hStart, hSpacing);
 	return spline;
@@ -56,8 +55,7 @@ CubicSpline gammaOrthGeneration(const CubicSpline& uInfParaSpline){
 		fileData[i][1] = gamma;
 	}
 
-	std::string gammaFileName = GAMMA_FILE_NAME + std::to_string(N) + "x" + std::to_string(M) + FILE_SUFFIX;
-	io::printDataFile(fileData, gammaFileName);
+	io::printData(fileData);
 
 	CubicSpline spline(gammaOrthData, hStart, hSpacing);
 	return spline;
@@ -105,8 +103,7 @@ BicubicSpline phiGeneration(const CubicSpline& uInfParaSpline){
 		hSplines[i] = CubicSpline(constantHData, 0.0, psiSpacing);
 	}
 
-	std::string phiFileName = PHI_FILE_NAME + std::to_string(N) + "x" + std::to_string(M) + FILE_SUFFIX;
-	io::printDataFile(fileData, phiFileName);
+	io::printData(fileData);
 
 	BicubicSpline spline(hSplines, hStart, hSpacing);
 	return spline;
@@ -156,8 +153,7 @@ BicubicSpline uSemiGeneration(){
 		}
 	}
 
-	std::string uSemiFileName = USEMI_FILE_NAME + std::to_string(N) + "x" + std::to_string(M) + FILE_SUFFIX;
-	io::printDataFile(fileData, uSemiFileName);
+	io::printData(fileData);
 
 	//Create 1D splines at constant h
 	#pragma omp parallel for

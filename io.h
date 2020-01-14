@@ -1,6 +1,7 @@
 #ifndef io_header
 #define io_header
 
+#include <ctime>
 #include <vector>
 #include <iostream>
 #include <fstream>
@@ -10,7 +11,8 @@
 #include "constants.h"
 
 namespace io{
-	void printDataFile(const std::vector<std::vector<double>>&, std::string);
+  void printHeader();
+	void printData(const std::vector<std::vector<double>>&);
 }
 
 #endif
