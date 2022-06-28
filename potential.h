@@ -4,6 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <fstream>
+#include <iostream>
 #include <utility>
 
 #include <boost/math/quadrature/gauss.hpp>

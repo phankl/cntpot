@@ -3,11 +3,11 @@
 
 #include <vector>
 
-#include <boost/math/interpolators/cubic_b_spline.hpp>
+#include <boost/math/interpolators/cardinal_cubic_b_spline.hpp>
 
 class CubicSpline{
 	private:
-		boost::math::cubic_b_spline<double> spline;
+		boost::math::interpolators::cardinal_cubic_b_spline<double> spline;
 
 	public:
 		CubicSpline();

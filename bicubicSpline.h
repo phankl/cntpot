@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include <boost/math/interpolators/cubic_b_spline.hpp>
+#include <boost/math/interpolators/cardinal_cubic_b_spline.hpp>
 
 #include "cubicSpline.h"
 

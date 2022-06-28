@@ -41,7 +41,6 @@ extern const double DELTA0;
 extern const double DELTA1;
 extern const double DELTA2;
 extern const double DELTA3;
-extern const double XI_LOWER;
 
 //Potential file point numbers
 extern const int GAMMA_POINTS;
