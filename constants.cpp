@@ -27,13 +27,12 @@ const double A_C = 1.421;
 //Numerical parameters
 const int MINIMUM_PRECISION_BITS = 26;
 const int TRAPEZOIDAL_POINTS = 100;
-const int OUTPUT_PRECISION = 15;
+const int OUTPUT_PRECISION = 8;
 
 const double DELTA0 = 0.3;
-const double DELTA1 = 1.0;
-const double DELTA2 = 2.0;
+const double DELTA1 = 0.3;
+const double DELTA2 = 0.5;
 const double DELTA3 = 0.3;
-const double XI_LOWER = -25.0;
 
 //Potential file point numbers
 const int GAMMA_POINTS = 1001;

@@ -8,7 +8,7 @@ CubicSpline uInfGeneration(){
 	std::vector<double> uInfData(UINF_POINTS, 0);
 	std::vector<std::vector<double>> fileData(UINF_POINTS, std::vector<double>(2, 0));
 
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic)
 	for(int i = 0; i < UINF_POINTS; i++){
 		double h = hStart + i*hSpacing;
 		double uDensity = uExactInfDensity(h, 0, 0);
@@ -24,14 +24,14 @@ CubicSpline uInfGeneration(){
 }
 
 CubicSpline gammaOrthGeneration(const CubicSpline& uInfParaSpline){
-	double hStart = 2*R_CNT + DELTA0;
+	double hStart = 0.0;
 	double hEnd = 2*R_CNT + R_C - DELTA0;
 	double hSpacing = (hEnd - hStart) / (GAMMA_POINTS - 1);
 
 	std::vector<double> gammaOrthData(GAMMA_POINTS, 0);
-	std::vector<std::vector<double>> fileData(GAMMA_POINTS, std::vector<double>(2, 0));
+	std::vector<std::vector<double>> fileData(GAMMA_POINTS, std::vector<double>(3, 0));
 
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic)
 	for(int i = 0; i < GAMMA_POINTS; i++){
 		double h = hStart + i*hSpacing;
 
@@ -45,14 +45,21 @@ CubicSpline gammaOrthGeneration(const CubicSpline& uInfParaSpline){
 			else return uInfParaSpline(hBar);
 		};
 
-		std::pair<double, double> uInfMinimum = boost::math::tools::brent_find_minima(uInfLambda, XI_LOWER, 0.0, MINIMUM_PRECISION_BITS);
-		std::pair<double, double> uInfBarMinimum = boost::math::tools::brent_find_minima(uInfBarLambda, XI_LOWER, 0.0, MINIMUM_PRECISION_BITS);
+		
+    std::pair<double, double> uInfMinimum = boost::math::tools::brent_find_minima(uInfLambda, -DELTA0, 2*R_CNT + R_C, MINIMUM_PRECISION_BITS);
+    double xiBarUpper = sqrt(pow(2*R_CNT + R_C, 2) - h*h);
+		std::pair<double, double> uInfBarMinimum = boost::math::tools::brent_find_minima(uInfBarLambda, -DELTA0, xiBarUpper, MINIMUM_PRECISION_BITS);
 
 		double gamma = uInfMinimum.second / uInfBarMinimum.second;
+    double omega;
+    if (std::fabs(uInfMinimum.first) < 1.0e-3) omega = 1.0;
+    else omega = std::fabs(uInfBarMinimum.first / uInfMinimum.first);
+    if (omega < 1.0) omega = 1.0;
 
 		gammaOrthData[i] = gamma;
 		fileData[i][0] = h;
 		fileData[i][1] = gamma;
+    // fileData[i][2] = omega;
 	}
 
 	io::printData(fileData);
@@ -70,7 +77,7 @@ BicubicSpline phiGeneration(const CubicSpline& uInfParaSpline){
 	std::vector<std::vector<double>> fileData(PHI_POINTS*PHI_POINTS, std::vector<double>(3, 0));
 	std::vector<CubicSpline> hSplines(PHI_POINTS, CubicSpline());
 
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic)
 	for(int i = 0; i < PHI_POINTS; i++){
 		double h = hStart + i*hSpacing;
 
@@ -125,7 +132,7 @@ BicubicSpline uSemiGeneration(){
 	std::vector<std::vector<double>> uSemiData(USEMI_POINTS, std::vector<double>(USEMI_POINTS, 0));
 	std::vector<CubicSpline> hSplines(USEMI_POINTS, CubicSpline());
 
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic)
 	for(int i = 0; i < USEMI_POINTS; i++){
 		double h = hStart + i*hSpacing;
 		for(int j = 0; j < USEMI_POINTS; j++){
@@ -142,7 +149,7 @@ BicubicSpline uSemiGeneration(){
 	}
 
 	//Smoothly extrapolate data in undefined domain
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic)
 	for(int i = 0; i < hSwitch; i++){
 		double uSemiXiSwitch = uSemiData[i][xiSwitch-1];
 		for(int j = xiSwitch; j < USEMI_POINTS; j++){
@@ -156,7 +163,7 @@ BicubicSpline uSemiGeneration(){
 	io::printData(fileData);
 
 	//Create 1D splines at constant h
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic)
 	for(int i = 0; i < USEMI_POINTS; i++){
 		hSplines[i] = CubicSpline(uSemiData[i], xiStart, xiSpacing);
 	}
@@ -289,7 +296,7 @@ double uApproximateSemi(double h, double alpha, double xi1, double xi2, double e
 
 	double uSemi = 0;
 
-	#pragma omp parallel for
+	#pragma omp parallel for schedule(dynamic)
 	for(int i = 0; i < TRAPEZOIDAL_POINTS; i++){
 		double c = 1.0;
 		if(i == 0 || i == TRAPEZOIDAL_POINTS - 1) c = 0.5;
