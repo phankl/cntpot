@@ -7,18 +7,18 @@
 
 #include "cubicSpline.h"
 
-class BicubicSpline{
-	private:
-		std::vector<CubicSpline> xSplines;
-		double xSpacing;
-		double xStart;
-		int points;
+class BicubicSpline {
+private:
+  std::vector<CubicSpline> xSplines;
+  double xSpacing;
+  double xStart;
+  int points;
 
-	public:
-		BicubicSpline();
-		BicubicSpline(const std::vector<CubicSpline>&, double, double);
+public:
+  BicubicSpline();
+  BicubicSpline(const std::vector<CubicSpline> &, double, double);
 
-		double operator ()(double, double) const;
+  double operator()(double, double) const;
 };
 
 #endif

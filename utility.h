@@ -6,13 +6,13 @@
 #include "constants.h"
 #include "cubicSpline.h"
 
-//General functions
+// General functions
 double s5(double);
 int heaviside(double);
 int sgn(double);
 
-//Specific functions for potential
-double gammaFunction(double, double, const CubicSpline&);
+// Specific functions for potential
+double gammaFunction(double, double, const CubicSpline &);
 double omegaFunction(double);
 double thetaFunction(double);
 
