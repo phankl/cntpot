@@ -50,6 +50,7 @@ extern const int USEMI_POINTS;
 extern const int MINIMUM_PRECISION_BITS;
 
 // Potential file strings
+extern const std::string FILE_PREFIX;
 extern const std::string FILE_SUFFIX;
 extern const std::string CONTRIBUTOR;
 extern const std::string EMAIL;
