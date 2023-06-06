@@ -1,17 +1,24 @@
 #ifndef cubicSpline_header
 #define cubicSpline_header
 
+#include <cmath>
 #include <vector>
 
-#include <boost/math/interpolators/cardinal_cubic_b_spline.hpp>
+using namespace std;
 
 class CubicSpline {
 private:
-  boost::math::interpolators::cardinal_cubic_b_spline<double> spline;
+  int size;
+  double xstart, dx;
+  vector<vector<double>> coeff;
+
+  double spline(double) const;
+
+  vector<vector<double>> splineCoeff(const vector<double> &);
 
 public:
   CubicSpline();
-  CubicSpline(const std::vector<double> &, double, double);
+  CubicSpline(const vector<double> &, double, double);
 
   double operator()(double) const;
 };

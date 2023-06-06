@@ -4,8 +4,6 @@
 #include <sstream>
 #include <vector>
 
-#include <boost/math/interpolators/cardinal_cubic_b_spline.hpp>
-
 #include "bicubicSpline.h"
 #include "constants.h"
 #include "cubicSpline.h"
@@ -47,7 +45,7 @@ int main(int argc, char *argv[]) {
   BicubicSpline phiSpline = phiGeneration(uInfParaSpline);
   std::cout << "phi computed!" << std::endl;
   BicubicSpline uSemiParaSpline = uSemiGeneration();
-  std::cout << "uSemiPara compted!" << std::endl;
+  std::cout << "uSemiPara computed!" << std::endl;
 
   POTFILE.close();
 

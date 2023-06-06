@@ -5,7 +5,7 @@
 #include <fstream>
 #include <string>
 
-#include <boost/math/quadrature/gauss.hpp>
+#include "integrator.h"
 
 // Global non-constant variables
 // CNT chiral vector
@@ -33,7 +33,6 @@ extern const double N_SIGMA;
 extern const double A_C;
 
 // Numerical parameters
-extern const int MINIMUM_PRECISION_BITS;
 extern const int TRAPEZOIDAL_POINTS;
 extern const int OUTPUT_PRECISION;
 
@@ -57,7 +56,11 @@ extern const std::string EMAIL;
 extern const std::string CITATION;
 
 // Gauss-Legendre integrators
-extern const boost::math::quadrature::gauss<double, 128> ANGLE_INTEGRATOR;
-extern const boost::math::quadrature::gauss<double, 129> LENGTH_INTEGRATOR;
+extern const Integrator ANGLE_INTEGRATOR;
+extern const Integrator LENGTH_INTEGRATOR;
+
+// Gradient descent
+extern const double GD_DX;
+extern const double GD_EPS;
 
 #endif

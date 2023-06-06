@@ -7,12 +7,10 @@
 #include <utility>
 #include <vector>
 
-#include <boost/math/quadrature/gauss.hpp>
-#include <boost/math/tools/minima.hpp>
-
 #include "bicubicSpline.h"
 #include "constants.h"
 #include "cubicSpline.h"
+#include "integrator.h"
 #include "io.h"
 #include "utility.h"
 

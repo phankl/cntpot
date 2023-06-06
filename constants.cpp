@@ -25,7 +25,6 @@ const double N_SIGMA = 0.381;
 const double A_C = 1.421;
 
 // Numerical parameters
-const int MINIMUM_PRECISION_BITS = 26;
 const int TRAPEZOIDAL_POINTS = 100;
 const int OUTPUT_PRECISION = 8;
 
@@ -47,3 +46,17 @@ const std::string CONTRIBUTOR = "Philipp Kloza";
 const std::string EMAIL = "pak37@cam.ac.uk";
 const std::string CITATION =
     "Volkov and Zhigilei, J Phys Chem C, 114, 5513 (2010)";
+
+// Gauss-Legendre integrators
+extern const int ANGLE_POINTS = 128;
+extern const int LENGTH_POINTS = 129;
+extern const int BISECTION_STEPS = 1000000;
+extern const double BISECTION_EPS = 1.0e-15;
+extern const Integrator ANGLE_INTEGRATOR(ANGLE_POINTS, BISECTION_STEPS,
+                                         BISECTION_EPS);
+extern const Integrator LENGTH_INTEGRATOR(LENGTH_POINTS, BISECTION_STEPS,
+                                          BISECTION_EPS);
+
+// Gradient descent
+extern const double GD_DX = 1.0e-8;
+extern const double GD_EPS = 1.0e-6;
