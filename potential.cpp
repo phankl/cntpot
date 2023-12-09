@@ -49,13 +49,15 @@ CubicSpline gammaOrthGeneration(const CubicSpline &uInfParaSpline) {
         return uInfParaSpline(hBar);
     };
 
+    int precision_bits = std::numeric_limits<double>::digits;
+    double xiUpper = sqrt(pow(2 * R_CNT + R_C, 2) - h * h);
+
     std::pair<double, double> uInfMinimum =
-        boost::math::tools::brent_find_minima(
-            uInfLambda, -DELTA0, 2 * R_CNT + R_C, MINIMUM_PRECISION_BITS);
-    double xiBarUpper = sqrt(pow(2 * R_CNT + R_C, 2) - h * h);
+        boost::math::tools::brent_find_minima(uInfLambda, -DELTA0, xiUpper,
+                                              precision_bits);
     std::pair<double, double> uInfBarMinimum =
-        boost::math::tools::brent_find_minima(
-            uInfBarLambda, -DELTA0, xiBarUpper, MINIMUM_PRECISION_BITS);
+        boost::math::tools::brent_find_minima(uInfBarLambda, -DELTA0, xiUpper,
+                                              precision_bits);
 
     double gamma = uInfMinimum.second / uInfBarMinimum.second;
     double omega;
@@ -193,8 +195,22 @@ BicubicSpline uSemiGeneration() {
 }
 
 double uExactInfDensity(double h, double alpha, double xi) {
+  double sinAlpha = sin(alpha);
+  double axisDistance = sqrt(h * h + xi * xi * sinAlpha * sinAlpha);
+  double deltaH = axisDistance - 2 * R_CNT;
+  if (fabs(deltaH) >= R_C)
+    return 0;
+
+  // Compute eta integral range
+  double etaMax;
+  if (alpha == 0)
+    etaMax = sqrt(R_C * R_C - deltaH * deltaH);
+  // Conversative choice for general case
+  else
+    etaMax = 2 * R_CNT + R_C;
+
   // 3D integral with nested lambda functions
-  auto phi1Integrand = [h, alpha, xi](double phi1) -> double {
+  auto phi1Integrand = [h, alpha, xi, etaMax](double phi1) -> double {
     auto etaIntegrand = [h, alpha, xi, phi1](double eta) -> double {
       auto phi2Integrand = [h, alpha, xi, eta, phi1](double phi2) -> double {
         double distance = surfaceElementDistance(h, alpha, xi, eta, phi1, phi2);
@@ -202,20 +218,6 @@ double uExactInfDensity(double h, double alpha, double xi) {
       };
       return ANGLE_INTEGRATOR.integrate(phi2Integrand, 0, 2.0 * PI);
     };
-    double sinAlpha = sin(alpha);
-    double axisDistance = sqrt(h * h + xi * xi * sinAlpha * sinAlpha);
-    double deltaH = axisDistance - 2 * R_CNT;
-    if (fabs(deltaH) >= R_C)
-      return 0;
-
-    // Compute integral range
-    double etaMax;
-    if (alpha == 0)
-      etaMax = sqrt(R_C * R_C - deltaH * deltaH);
-    // Conversative choice for general case
-    else
-      etaMax = 2 * R_CNT + R_C;
-
     return LENGTH_INTEGRATOR.integrate(etaIntegrand, xi - etaMax, xi + etaMax);
   };
   return R_CNT * R_CNT * N_SIGMA * N_SIGMA *
@@ -223,8 +225,27 @@ double uExactInfDensity(double h, double alpha, double xi) {
 }
 
 double uExactSemiDensity(double h, double alpha, double xi, double etaEnd) {
+  double sinAlpha = sin(alpha);
+  double axisDistance = sqrt(h * h + xi * xi * sinAlpha * sinAlpha);
+  double deltaH = axisDistance - 2 * R_CNT;
+  if (deltaH < 0)
+    deltaH = 0;
+  if (fabs(deltaH) >= R_C)
+    return 0;
+
+  // Compute integral range
+  double etaMax;
+  if (alpha == 0)
+    etaMax = sqrt(R_C * R_C - deltaH * deltaH);
+  // Conversative choice for general case
+  else
+    etaMax = 2 * R_CNT + R_C;
+
+  if (etaEnd > xi - etaMax && etaEnd >= xi + etaMax)
+    return 0;
+
   // 3D integral with nested lambda functions
-  auto phi1Integrand = [h, alpha, xi, etaEnd](double phi1) -> double {
+  auto phi1Integrand = [h, alpha, xi, etaEnd, etaMax](double phi1) -> double {
     auto etaIntegrand = [h, alpha, xi, phi1](double eta) -> double {
       auto phi2Integrand = [h, alpha, xi, eta, phi1](double phi2) -> double {
         double distance = surfaceElementDistance(h, alpha, xi, eta, phi1, phi2);
@@ -232,28 +253,9 @@ double uExactSemiDensity(double h, double alpha, double xi, double etaEnd) {
       };
       return ANGLE_INTEGRATOR.integrate(phi2Integrand, 0, 2.0 * PI);
     };
-    double sinAlpha = sin(alpha);
-    double axisDistance = sqrt(h * h + xi * xi * sinAlpha * sinAlpha);
-    double deltaH = axisDistance - 2 * R_CNT;
-    if (deltaH < 0)
-      deltaH = 0;
-    if (fabs(deltaH) >= R_C)
-      return 0;
-
-    // Compute integral range
-    double etaMax;
-    if (alpha == 0)
-      etaMax = sqrt(R_C * R_C - deltaH * deltaH);
-    // Conversative choice for general case
+    if (etaEnd > xi - etaMax && etaEnd < xi + etaMax)
+      return LENGTH_INTEGRATOR.integrate(etaIntegrand, etaEnd, xi + etaMax);
     else
-      etaMax = 2 * R_CNT + R_C;
-
-    if (etaEnd > xi - etaMax) {
-      if (etaEnd >= xi + etaMax)
-        return 0;
-      else
-        return LENGTH_INTEGRATOR.integrate(etaIntegrand, etaEnd, xi + etaMax);
-    } else
       return LENGTH_INTEGRATOR.integrate(etaIntegrand, xi - etaMax,
                                          xi + etaMax);
   };
